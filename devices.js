@@ -1,10 +1,8 @@
-export default [
+module.exports = [
     {
-        id: 0,
         name: "UPS1",
-        ip: "192.168.1.1",
+        ip: "10.50.1.2",
         port: 3551,
-        http: "http",
         NOMPOWER: 700
     }
 ]

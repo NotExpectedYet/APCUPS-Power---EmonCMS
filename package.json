@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apcaccess": "^1.1.2",
+    "apcupsd": "^0.1.1",
     "axios": "^0.27.2",
     "pm2": "^5.2.0",
     "request": "^2.88.2"
