@@ -1,15 +1,35 @@
-var ApcAccess = require('apcaccess');
-var client = new ApcAccess();
+import devices from "./devices";
+import emonCMS from "./emon";
+const ApcAccess = require('apcaccess');
 const axios = require('axios');
 
-let emonCMS = "http://192.168.1.214/emoncms/input/"
-let apiKey = "apikey=c368e687c015eee0b792c07acfbf469b"
-let nodeName = "PrinterUPS1"
+const interval = () => {
+
+}
+
+const createClient = () => {
+
+}
+
+const doesClientExist = () => {
+
+}
+
+const getJsonStatus = (clientIndex) => {
+
+}
+
+const calculateCurrentWattage = ({NOMPOWER: undefined, LOADPCT: 0}) => {
+
+}
+
+const sendToEmonCMS = () => {
+
+}
 
 //Set interval every 10s
 setInterval(function() {
-
-
+    const client = new ApcAccess();
 
 client.connect('localhost', 3551)
   .then(function() {
