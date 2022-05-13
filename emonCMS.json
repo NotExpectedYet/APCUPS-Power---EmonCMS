@@ -1,0 +1,5 @@
+{
+    "emoncms_url": "http://192.168.1.214/emoncms/input/",
+    "apikey": "apikey=c368e687c015eee0b792c07acfbf469b",
+    "collection_interval": 5000
+}

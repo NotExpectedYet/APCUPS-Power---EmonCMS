@@ -1,12 +1,19 @@
-const devices = require("./devices");
-const emonCMS = require("./emon");
 const ApcAccess = require('apcaccess');
 const axios = require('axios');
 
+let devices = null;
+let emonCMS = null;
 let checkInterval = null;
 const clients = [];
 
 const interval = async (clientIndex) => {
+    if(!checkForConfigs()){
+        // No configs... kill the service
+        clearInterval(checkInterval);
+        checkInterval = null;
+    }
+
+
     if(!doesClientExist(clientIndex)){
         createClient();
     }
@@ -22,6 +29,26 @@ const interval = async (clientIndex) => {
     await disconnectFromClient(clientIndex);
 
 
+}
+
+const checkForConfigs = () => {
+    let devicesConfig = null;
+    let emonCMSConfig = null;
+    try{
+        devicesConfig = require("./devices.json");
+        emonCMSConfig = emonCMSConfig("./emonCMS.json");
+    }catch(e){
+        console.error(e.toString())
+    }
+
+    if(!devicesConfig || !emonCMS){
+        return false;
+    }
+
+    devices = devicesConfig;
+    emonCMS = emonCMSConfig;
+
+    return true;
 }
 
 const createClient = () => {
@@ -72,9 +99,9 @@ const sendToEmonCMS = () => {
 }
 
 //Set interval every 10s
-checkInterval = setInterval(function() {
+checkInterval = setInterval(async function() {
     for(const [index] of devices.entries()){
-        interval(index);
+        await interval(index)
     }
 
 //     const client = new ApcAccess();
@@ -103,7 +130,3 @@ checkInterval = setInterval(function() {
 //     console.log(err);
 //  })
 }, emonCMS.collection_interval);
-
-for(const [index] of devices.entries()){
-    interval(index).then();
-}
