@@ -6,14 +6,9 @@ let emonCMS = null;
 let checkInterval = null;
 const clients = [];
 
+checkForConfigs();
+
 const interval = async (clientIndex) => {
-    if(!checkForConfigs()){
-        // No configs... kill the service
-        clearInterval(checkInterval);
-        checkInterval = null;
-    }
-
-
     if(!doesClientExist(clientIndex)){
         createClient();
     }
