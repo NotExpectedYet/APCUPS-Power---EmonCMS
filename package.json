@@ -1,6 +1,6 @@
 {
   "name": "powergrab",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Grabbing Power from UPS to emoncms",
   "main": "index.js",
   "scripts": {
@@ -10,8 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "apcaccess": "^1.1.2",
-    "axios": "^0.19.2",
-    "pm2": "^4.4.0",
+    "axios": "^0.27.2",
+    "pm2": "^5.2.0",
     "request": "^2.88.2"
   }
 }
