@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const devices = require("./devices.json");
 const emonCMS = require("./emonCMS.json");
-let checkInterval = null;
+let checkInterval;
 const clients = [];
 
 const interval = async (clientIndex) => {
@@ -16,9 +16,9 @@ const interval = async (clientIndex) => {
     const jsonStatus = await getJsonStatus(clientIndex);
 
     const calculatedWattage = calculateCurrentWattage(clientIndex, jsonStatus);
-    console.log("HLLO")
+
     await sendToEmonCMS(clientIndex, calculatedWattage);
-    console.log("SEND")
+
     await disconnectFromClient(clientIndex);
 }
 
@@ -66,19 +66,18 @@ const sendToEmonCMS = async (clientIndex, wattage) => {
     const { name } = devices[clientIndex]
 
     const node_name = name.replace(" ", "_").toLowerCase();
-    console.log(node_name)
+
     const data = JSON.stringify({
         power: wattage
     })
-    console.log(data)
+
     const emonURL = `${emonCMS.emoncms_url}/input/post?node=${node_name}&fulljson=${data}&apikey=${emonCMS.apikey}`
-    console.log(emonURL)
+    console.log("Sending", {node_name, data})
     try{
-        const request = await axios.get(emonURL);
-        console.log(request)
-        console.log(request.ok)
+        await axios.get(emonURL);
+        console.log("Sent Data", data)
     }catch(e){
-        console.error(e)
+        console.error("Error with data!", e.toString())
     }
 
 }
