@@ -1,5 +1,5 @@
 
-# APCUPS - Power Collector for EmonCMS
+# APCUPS - Power Collector for EmonCMS - WIP
 
 # What does this do? 
 The script runs on an interval and gathers data from multiple apcupsd installs using it's network functionality. It then pushes that data as a wattage value up to emonCMS to be tracked. 
@@ -22,4 +22,17 @@ The script expects you've got apcupsd setup and running on a client. It can be w
 ## Install the dependencies 
 `npm ci`
 
-## Create a file containing your emonCMS data. 
+## Create a emonCMS.json containing your emonCMS data. 
+
+## Create a devices.json containing your device list.
+
+
+## General Issues
+1. Can't connect to APC daemon on remote machine.
+
+    This is usually because apc is setup to listen to localhost by default. Look for the NISIP value in your apcupsd.config file and change it to 0.0.0.0. 
+2. Can't find where my max watt comes from.
+
+    You can find max watt for APC in your device spec's. Below is a list of spec's for common APC devices.
+    - https://www.apc.com/shop/uk/en/products/APC-Back-UPS-1400VA-230V-AVR-IEC-Sockets/P-BX1400UI
+    - https://www.apc.com/shop/uk/en/products/APC-Back-UPS-700VA-230V-AVR-IEC-Sockets-To-be-replace-by-BX750MI-/P-BX700UI

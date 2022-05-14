@@ -1,12 +1,10 @@
 const ApcAccess = require('apcaccess');
 const axios = require('axios');
 
-let devices = null;
-let emonCMS = null;
+const devices = require("./devices.json");
+const emonCMS = require("./emonCMS.json");
 let checkInterval = null;
 const clients = [];
-
-checkForConfigs();
 
 const interval = async (clientIndex) => {
     if(!doesClientExist(clientIndex)){
@@ -14,35 +12,18 @@ const interval = async (clientIndex) => {
     }
 
     await connectToClient(clientIndex);
-    console.log(clientIndex)
+
     const jsonStatus = await getJsonStatus(clientIndex);
 
-    const calculatedWattage = calculateCurrentWattage(clientIndex, jsonStatus)
-
-    console.log(calculatedWattage)
-
+    const calculatedWattage = calculateCurrentWattage(clientIndex, jsonStatus);
+    console.log("HLLO")
+    await sendToEmonCMS(clientIndex, calculatedWattage);
+    console.log("SEND")
     await disconnectFromClient(clientIndex);
-
-
 }
 
-const checkForConfigs = () => {
-    let devicesConfig = null;
-    let emonCMSConfig = null;
-    try{
-        devicesConfig = require("./devices.json");
-        emonCMSConfig = emonCMSConfig("./emonCMS.json");
-    }catch(e){
-        console.error(e.toString())
-    }
-
-    if(!devicesConfig || !emonCMS){
-        return false;
-    }
-
-    devices = devicesConfig;
-    emonCMS = emonCMSConfig;
-
+const checkConfigs = () => {
+    //TODO
     return true;
 }
 
@@ -56,7 +37,7 @@ const doesClientExist = (clientIndex) => {
 }
 
 const connectToClient = async (clientIndex) => {
-    return clients[clientIndex].connect(clients[clientIndex].ip, clients[clientIndex].port);
+    return clients[clientIndex].connect(devices[clientIndex].ip, devices[clientIndex].port);
 }
 
 const getJsonStatus = async (clientIndex) => {
@@ -67,29 +48,38 @@ const disconnectFromClient = async (clientIndex) => {
     return clients[clientIndex].disconnect();
 }
 
-const calculateCurrentWattage = (clientIndex, {NOMPOWER = undefined, LOADPCT = 0}) => {
-    console.log(clientIndex)
-    let nominal_power = 0;
-    console.log(NOMPOWER)
-    if(!NOMPOWER){
-        console.log(clients[clientIndex])
-        nominal_power = clients[clientIndex].NOMPOWER;
-    }else{
-        nominal_power = parseFloat(NOMPOWER)
+const calculateCurrentWattage = (clientIndex, {LOADPCT = 0}) => {
+    const { MAX_WATT } = devices[clientIndex];
+
+    if(!MAX_WATT){
+        console.error("Can't calculate power, no max watt provided in device config")
+        return;
     }
+
     const cleanLOADPCT = LOADPCT.replace("Percent", "");
-    console.log(cleanLOADPCT)
     const load_pct = parseFloat(cleanLOADPCT)
 
-    console.log(load_pct, nominal_power)
-
-    let currentWattage = nominal_power * 0.01 * load_pct
-    return JSON.stringify({
-		"power": currentWattage
-	})
+    return MAX_WATT * 0.01 * load_pct
 }
 
-const sendToEmonCMS = () => {
+const sendToEmonCMS = async (clientIndex, wattage) => {
+    const { name } = devices[clientIndex]
+
+    const node_name = name.replace(" ", "_").toLowerCase();
+    console.log(node_name)
+    const data = JSON.stringify({
+        power: wattage
+    })
+    console.log(data)
+    const emonURL = `${emonCMS.emoncms_url}/input/post?node=${node_name}&fulljson=${data}&apikey=${emonCMS.apikey}`
+    console.log(emonURL)
+    try{
+        const request = await axios.get(emonURL);
+        console.log(request)
+        console.log(request.ok)
+    }catch(e){
+        console.error(e)
+    }
 
 }
 
@@ -98,30 +88,6 @@ checkInterval = setInterval(async function() {
     for(const [index] of devices.entries()){
         await interval(index)
     }
-
-//     const client = new ApcAccess();
-//
-// client.connect('localhost', 3551)
-//   .then(function() {
-//     return client.getStatusJson();
-//   })
-//   .then(async function(result) {
-//
-//     data = JSON.stringify(data)
-//     let url = `${emonCMS}post?node=${nodeName}&fulljson=${data}&${apiKey}`
-//
-//     axios.get(url)
-//   	.then(response => {
-//   	})
-//   	.catch(error => {
-//     		console.log(error);
-//   	});
-//     return client.disconnect();
-//   })
-//   .then(function() {
-//     console.log('Disconnected');
-//   })
-//   .catch(function(err) {
-//     console.log(err);
-//  })
 }, emonCMS.collection_interval);
+
+checkConfigs();
