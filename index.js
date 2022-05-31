@@ -11,15 +11,21 @@ const interval = async (clientIndex) => {
         createClient();
     }
 
-    await connectToClient(clientIndex);
+    try {
+        await connectToClient(clientIndex);
 
-    const jsonStatus = await getJsonStatus(clientIndex);
+        const jsonStatus = await getJsonStatus(clientIndex);
 
-    const calculatedWattage = calculateCurrentWattage(clientIndex, jsonStatus);
+        const calculatedWattage = calculateCurrentWattage(clientIndex, jsonStatus);
 
-    await sendToEmonCMS(clientIndex, calculatedWattage);
+        await sendToEmonCMS(clientIndex, calculatedWattage);
 
-    await disconnectFromClient(clientIndex);
+        await disconnectFromClient(clientIndex);
+    } catch (e) {
+        await disconnectFromClient(clientIndex);
+        console.error(e);
+    }
+
 }
 
 const checkConfigs = () => {

@@ -75,4 +75,4 @@ These will not be logged by default so you'll need to create the "Log to feed" a
  - [x] Allow collection of data from multiple devices
  - [x] Allow sending of data to single emoncms system
  - [ ] Add in checks for data verification for devices/emoncms json files.
- - [ ] Disconnect from the device if axios errors out
+ - [x] Disconnect from the device if axios errors out
